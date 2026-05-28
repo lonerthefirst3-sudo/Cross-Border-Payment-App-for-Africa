@@ -6,6 +6,7 @@ import { BalanceCardSkeleton, TransactionRowSkeleton } from '../components/Skele
 import api from '../utils/api';
 import { truncateAddress } from '../utils/currency';
 import { useExchangeRates } from '../hooks/useExchangeRates';
+import { useCountUp } from '../hooks/useCountUp';
 import { usePaymentStream } from '../hooks/usePaymentStream';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { setCacheEntry, getCacheEntry } from '../utils/offlineDB';
@@ -15,6 +16,17 @@ import { usePullToRefresh } from '../hooks/usePullToRefresh';
 
 const IS_TESTNET = process.env.REACT_APP_STELLAR_NETWORK !== 'mainnet';
 const MAX_WALLETS = 5;
+
+function BalanceDisplay({ balance }) {
+  const numericBalance = Number.isFinite(balance) ? balance : 0;
+  const animated = useCountUp(numericBalance);
+
+  return (
+    <span className="text-4xl font-bold text-white">
+      {animated.toLocaleString()}
+    </span>
+  );
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -513,9 +525,7 @@ export default function Dashboard() {
 
         {/* Primary display: selected asset balance */}
         <div className="flex items-end gap-2 mb-2">
-          <span className="text-4xl font-bold text-white">
-            {parseFloat(displayBalance).toLocaleString()}
-          </span>
+          <BalanceDisplay balance={parseFloat(displayBalance)} />
           <span className="text-primary-200 mb-1">{selectedCurrency}</span>
         </div>
         {xlmAvailable !== null && selectedCurrency === 'XLM' && (
